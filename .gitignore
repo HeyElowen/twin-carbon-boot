@@ -1,4 +1,9 @@
 HELP.md
+API_SPEC.md
+DISCUSSION_MEMORY.md
+MOCK_DATA_GUIDE.md
+mock-data.js
+
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
