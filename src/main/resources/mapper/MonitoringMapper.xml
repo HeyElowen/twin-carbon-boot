@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.twincarbonboot.mapper.MonitoringMapper">
+
+    <!-- 主数据结果映射 -->
+    <resultMap id="EmissionPointMap" type="com.test.twincarbonboot.pojo.CarbonEmissionPoint">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="category" property="category"/>
+        <result column="area" property="area"/>
+        <result column="emission" property="emission"/>
+        <result column="height" property="height"/>
+        <result column="year" property="year"/>
+        <result column="quarter" property="quarter"/>
+        <result column="geom" property="geom"/>
+        <result column="lon" property="lon"/>
+        <result column="lat" property="lat"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 查询所有主数据（提取经纬度） -->
+    <select id="selectAll" resultMap="EmissionPointMap">
+        SELECT
+            id,
+            name,
+            category,
+            area,
+            emission,
+            height,
+            year,
+            quarter,
+            create_time,
+            ST_X(geom) AS lon,
+            ST_Y(geom) AS lat,
+            ST_AsText(geom) AS geom
+        FROM carbonpoint
+    </select>
+
+    <!-- 按年度和季度筛选（quarter 不为 ALL或空） -->
+    <select id="selectByYearAndQuarter" resultMap="EmissionPointMap">
+        SELECT
+            id,
+            name,
+            category,
+            area,
+            emission,
+            height,
+            year,
+            quarter,
+            create_time,
+            ST_X(geom) AS lon,
+            ST_Y(geom) AS lat,
+            ST_AsText(geom) AS geom
+        FROM carbonpoint
+        WHERE year = #{year}
+          AND quarter = #{quarter}
+    </select>
+
+    <!-- 按年度聚合（quarter = ALL，汇总全年） -->
+    <select id="selectByYearAggregate" resultMap="EmissionPointMap">
+        SELECT
+            MIN(id) AS id,
+            name,
+            category,
+            area,
+            SUM(emission) AS emission,
+            height,
+            year,
+            'ALL' AS quarter,
+            MIN(create_time) AS create_time,
+            ST_X(geom) AS lon,
+            ST_Y(geom) AS lat,
+            ST_AsText(geom) AS geom
+        FROM carbonpoint
+        WHERE year = #{year}
+        GROUP BY name, category, area, height, year, geom
+    </select>
+
+    <!-- 按年度和季度筛选（quarter 不为 ALL或空）  ___自定义数据版本 -->
+    <select id="CustomselectByYearAndQuarter" resultMap="EmissionPointMap">
+        SELECT
+            id,
+            name,
+            category,
+            emission,
+            year,
+            quarter,
+            create_time,
+            ST_X(geom) AS lon,
+            ST_Y(geom) AS lat,
+            ST_AsText(geom) AS geom
+        FROM carbon_custom_point
+        WHERE year = #{year}
+          AND user_id=#{userId}
+          AND quarter = #{quarter}
+    </select>
+
+
+    <!-- 按年度聚合（quarter = ALL，汇总全年）___自定义数据版本 -->
+    <select id="CustomselectByYearAggregate" resultMap="EmissionPointMap">
+        SELECT
+            MIN(id) AS id,
+            name,
+            category,
+            SUM(emission) AS emission,
+            year,
+            'ALL' AS quarter,
+            MIN(create_time) AS create_time,
+            ST_X(geom) AS lon,
+            ST_Y(geom) AS lat,
+            ST_AsText(geom) AS geom
+        FROM carbon_custom_point
+        WHERE year = #{year}
+        AND user_id=#{userId}
+        GROUP BY name, category, year, geom
+    </select>
+
+
+    <!-- 按名称模糊查询（对象查询） -->
+    <select id="selectByName" resultMap="EmissionPointMap">
+        SELECT
+            id,
+            name,
+            category,
+            area,
+            emission,
+            height,
+            year,
+            quarter,
+            create_time,
+            ST_X(geom) AS lon,
+            ST_Y(geom) AS lat,
+            ST_AsText(geom) AS geom
+        FROM carbonpoint
+        WHERE 1=1
+        <if test="name == null or name == ''">
+            AND 1=0    <!-- 直接让 SQL 查不到数据 -->
+        </if>
+        <if test="name != null and name != ''">
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
+    </select>
+
+    <!-- 饼图：按类型统计碳排放占比 -->
+    <select id="selectCategoryRatio" resultType="java.util.HashMap">
+        SELECT
+            category,
+            SUM(emission) AS total_emission
+        FROM carbonpoint
+        WHERE year = #{year}
+        <if test="quarter != null and quarter != 'ALL'">
+            AND quarter = #{quarter}
+        </if>
+        GROUP BY category
+    </select>
+
+    <!-- 折线图：按季度统计趋势 -->
+    <select id="selectTrend" resultType="java.util.HashMap">
+        SELECT
+            year || '-' || quarter AS period,
+            SUM(emission) AS total_emission
+        FROM carbonpoint
+        WHERE year BETWEEN #{startYear} AND #{endYear}
+        <if test="category != null and category != ''">
+            AND category = #{category}
+        </if>
+        GROUP BY year, quarter
+        ORDER BY year, quarter
+    </select>
+
+</mapper>
