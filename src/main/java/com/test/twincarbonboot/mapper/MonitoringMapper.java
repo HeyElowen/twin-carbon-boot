@@ -20,4 +20,8 @@ public interface MonitoringMapper {
     List<CarbonCustomPoint> CustomselectByYearAndQuarter(Integer year, String quarter, Integer userId);
 
     List<CarbonCustomPoint> CustomselectByYearAggregate(Integer year, Integer userId);
+
+    List selectCategoryRatio(Integer year, String quarter);
+
+    List selectTrend(Integer yearStart, Integer yearEnd, String category);
 }

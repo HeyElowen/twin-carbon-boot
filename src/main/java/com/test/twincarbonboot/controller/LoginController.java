@@ -1,4 +1,4 @@
-package com.test.twincarbonboot.contorller;
+package com.test.twincarbonboot.controller;
 
 import com.test.twincarbonboot.mapper.UserMapper;
 import com.test.twincarbonboot.pojo.LoginDTO;

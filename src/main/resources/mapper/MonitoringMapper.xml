@@ -145,11 +145,11 @@
     <!-- 饼图：按类型统计碳排放占比 -->
     <select id="selectCategoryRatio" resultType="java.util.HashMap">
         SELECT
-            category,
-            SUM(emission) AS total_emission
+            category AS name,
+            SUM(emission) AS value
         FROM carbonpoint
         WHERE year = #{year}
-        <if test="quarter != null and quarter != 'ALL'">
+        <if test="quarter != null and quarter != 'ALL' and quarter!='' ">
             AND quarter = #{quarter}
         </if>
         GROUP BY category
@@ -157,15 +157,25 @@
 
     <!-- 折线图：按季度统计趋势 -->
     <select id="selectTrend" resultType="java.util.HashMap">
-        SELECT
-            year || '-' || quarter AS period,
-            SUM(emission) AS total_emission
-        FROM carbonpoint
-        WHERE year BETWEEN #{startYear} AND #{endYear}
-        <if test="category != null and category != ''">
-            AND category = #{category}
-        </if>
-        GROUP BY year, quarter
+        SELECT year || '-' || quarter AS name, total_emission AS value
+        FROM (
+            SELECT year, quarter, SUM(emission) AS total_emission
+            FROM carbonpoint
+            <where>
+                <choose>
+                    <when test="yearEnd != null">
+                        year BETWEEN #{yearStart} AND #{yearEnd}
+                    </when>
+                    <otherwise>
+                        year = #{yearStart}
+                    </otherwise>
+                </choose>
+                <if test="category != null and category != ''">
+                    AND category = #{category}
+                </if>
+            </where>
+            GROUP BY year, quarter
+        ) t
         ORDER BY year, quarter
     </select>
 
