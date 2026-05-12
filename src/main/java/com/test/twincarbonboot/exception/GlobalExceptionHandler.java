@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.test.twincarbonboot.pojo.Result;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -66,7 +67,13 @@ public class GlobalExceptionHandler {
     }
     //意外的异常
     @ExceptionHandler(Exception.class)
-    public Result handleException(Exception e) {
+    public Result handleException(Exception e) throws NoResourceFoundException {
+        // 资源未找到，交给 Spring 默认处理，返回真正的 HTTP 404
+        if (e instanceof org.springframework.web.servlet.resource.NoResourceFoundException) {
+            throw (org.springframework.web.servlet.resource.NoResourceFoundException) e;
+        }
+
+
         // ========== 诊断：打印完整异常链 ==========
         log.error("===== 进入兜底异常处理器，开始诊断 =====");
         log.error("最外层异常类型: {}", e.getClass().getName());

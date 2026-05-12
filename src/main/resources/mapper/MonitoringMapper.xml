@@ -134,6 +134,8 @@
             ST_AsText(geom) AS geom
         FROM carbonpoint
         WHERE 1=1
+          AND year=#{year}
+          AND quarter=#{quarter}
         <if test="name == null or name == ''">
             AND 1=0    <!-- 直接让 SQL 查不到数据 -->
         </if>
@@ -149,6 +151,21 @@
             SUM(emission) AS value
         FROM carbonpoint
         WHERE year = #{year}
+        <if test="quarter != null and quarter != 'ALL' and quarter!='' ">
+            AND quarter = #{quarter}
+        </if>
+        GROUP BY category
+    </select>
+
+
+    <!-- 饼图：按类型统计碳排放占比  ___自定义数据版本-->
+    <select id="selectCustomCategoryRatio" resultType="java.util.HashMap">
+        SELECT
+        category AS name,
+        SUM(emission) AS value
+        FROM carbon_custom_point
+        WHERE year = #{year}
+        AND user_id =#{userId}
         <if test="quarter != null and quarter != 'ALL' and quarter!='' ">
             AND quarter = #{quarter}
         </if>
@@ -178,5 +195,43 @@
         ) t
         ORDER BY year, quarter
     </select>
+    <!-- 折线图：按季度统计趋势 ___自定义版本 -->
+    <select id="selectCustomTrend" resultType="java.util.HashMap">
+        SELECT year || '-' || quarter AS name, total_emission AS value
+        FROM (
+        SELECT year, quarter, SUM(emission) AS total_emission
+        FROM carbon_custom_point
+        <where>
+            <choose>
+                <when test="yearEnd != null">
+                    year BETWEEN #{yearStart} AND #{yearEnd}
+                </when>
+                <otherwise>
+                    year = #{yearStart}
+                </otherwise>
+            </choose>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+        </where>
+        AND user_id =#{userId}
+        GROUP BY year, quarter
+        ) t
+        ORDER BY year, quarter
+    </select>
 
+
+    <!-- 批量插入自定义碳排点（确认入库） -->
+    <insert id="batchInsertCustomPoints" parameterType="java.util.List">
+        INSERT INTO carbon_custom_point (user_id, name, category, year, quarter, emission, geom, raw_params,
+        create_time)
+        VALUES
+        <foreach collection="list" item="row" separator=",">
+            (#{row.userId}, #{row.name}, #{row.category}, #{row.year}, #{row.quarter},
+            #{row.emission},
+            ST_SetSRID(ST_MakePoint(#{row.lon}, #{row.lat}), 4326),
+            #{row.rawParams, jdbcType=OTHER, typeHandler=com.test.twincarbonboot.utils.JsonbTypeHandler},
+            NOW())
+        </foreach>
+    </insert>
 </mapper>

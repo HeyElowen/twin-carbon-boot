@@ -5,6 +5,7 @@ import com.test.twincarbonboot.pojo.CarbonEmissionPoint;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface MonitoringMapper {
@@ -24,4 +25,12 @@ public interface MonitoringMapper {
     List selectCategoryRatio(Integer year, String quarter);
 
     List selectTrend(Integer yearStart, Integer yearEnd, String category);
+
+    List selectByName( String name, Integer year, String quarter);
+
+    List selectCustomCategoryRatio(Integer year, String quarter, Integer userId);
+
+    List selectCustomTrend(Integer yearStart, Integer yearEnd, String category, Integer userId);
+
+    void batchInsertCustomPoints(List<Map<String, Object>> rows);
 }

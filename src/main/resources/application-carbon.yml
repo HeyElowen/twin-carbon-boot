@@ -1,0 +1,91 @@
+carbon:
+  scene-url: http://localhost:8090/iserver/services/3D-xxxx/rest/realspace
+
+  emission-factors:
+    electricity: 0.5827
+    gas: 1.864
+    diesel: 3.15
+
+  residential:
+    elec-intensity:
+      before-1980: 24
+      "1980-2000": 30
+      "2000-2010": 35
+      after-2010: 40
+    gas-intensity:
+      before-1980: 6.5
+      "1980-2000": 5.5
+      "2000-2010": 5.0
+      after-2010: 4.5
+    heat-ef:
+      air-pump: 0.20
+      gas-boiler: 2.10
+      electric-heater: 0.58
+      heat-pump: 0.24
+    quarter-factors:
+      elec: [0.28, 0.23, 0.27, 0.22]
+      gas: [0.30, 0.24, 0.22, 0.24]
+      heat: [0.52, 0.00, 0.00, 0.38]
+    waste:
+      per-capita-daily: 1.1
+      emission-factor: 0.5
+
+  commercial:
+    elec-intensity:
+      mall: 135
+      supermarket: 115
+      office: 90
+      restaurant: 200
+      hotel: 250
+      fast-food: 175
+    gas-intensity:
+      mall: 4.0
+      supermarket: 5.0
+      office: 2.5
+      restaurant: 30.0
+      hotel: 35.0
+      fast-food: 25.0
+    quarter-factors:
+      elec: [0.27, 0.24, 0.26, 0.23]
+      gas: [0.26, 0.24, 0.24, 0.26]
+
+  industrial:
+    elec-intensity:
+      electronic: 80
+      machinery: 50
+      textile: 40
+      food: 65
+      logistics: 28
+    quarter-factors:
+      elec: [0.78, 1.08, 1.08, 1.06]
+
+  agricultural:
+    ch4-ef:
+      continuous: 1.20
+      intermittent: 0.70
+      dry: 0.50
+    rice-days: 135
+    diesel-per-ha: 12
+    fertilizer-n2o: 0.0018
+    quarter-factors:
+      ch4: [0.00, 0.25, 0.62, 0.08]
+      fertilizer: [0.00, 0.45, 0.50, 0.00]
+      machinery: [0.05, 0.35, 0.25, 0.30]
+      irrigation: [0.05, 0.30, 0.45, 0.15]
+
+  educational:
+    elec-intensity:
+      primary: 30
+      middle: 35
+      high: 40
+      vocational: 45
+      university: 55
+    per-capita:
+      primary: 0.40
+      middle: 0.50
+      high: 0.60
+      vocational: 0.70
+      university: 0.90
+    quarter-factors:
+      elec: [0.22, 0.28, 0.18, 0.32]
+      gas: [0.25, 0.30, 0.20, 0.25]

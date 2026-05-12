@@ -19,4 +19,12 @@ public interface MonitoringService {
     List selectCategoryRatio(@Min(2000) @Max(2100) @NotNull(message = "年度不能为空") Integer year, @Pattern(regexp = "^(Q1|Q2|Q3|Q4|ALL)?$", message = "季度只能是 Q1/Q2/Q3/Q4/ALL") String quarter);
 
     List selectTrend(@Min(2000) @Max(2100) @NotNull(message = "年度不能为空") Integer yearStart, @Min(2000) @Max(2100) Integer yearEnd, @Pattern(regexp = "^(工业区|农业区|住宅区|商业区|教育区)?$", message = "用地类型只能是工业区|农业区|住宅区|商业区|教育区") String category);
+
+    List selectByName(String name, @Min(2000) @Max(2100) @NotNull Integer year, @Pattern(regexp = "Q1|Q2|Q3|Q4|ALL", message = "季度只能是 Q1/Q2/Q3/Q4/ALL") String quarter);
+
+    List selectCustomCategoryRatio(@Min(2000) @Max(2100) @NotNull(message = "年度不能为空") Integer year, @Pattern(regexp = "^(Q1|Q2|Q3|Q4|ALL)?$", message = "季度只能是 Q1/Q2/Q3/Q4/ALL") String quarter);
+
+    List selectCustomTrend(@Min(2000) @Max(2100) @NotNull(message = "起始年度不能为空") Integer yearStart, @Min(2000) @Max(2100) Integer yearEnd, @Pattern(regexp = "^(工业区|农业区|住宅区|商业区|教育区)?$", message = "用地类型只能是工业区|农业区|住宅区|商业区|教育区") String category);
+
+    void confirmImport(String batchId);
 }
